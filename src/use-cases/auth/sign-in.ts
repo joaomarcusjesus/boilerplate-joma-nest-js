@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { CredentialGateway } from '../contracts/gateway/credential-gateway';
 import * as bcrypt from 'bcrypt';
 import { Credential } from '@/domain/models/credential';
@@ -22,6 +26,11 @@ export class SignIn {
     const { email, password } = input;
 
     const customer = await this.repository.findByEmail({ email });
+
+    if (!customer) {
+      throw new NotFoundException();
+    }
+
     const compare = await bcrypt.compare(password, customer.password);
 
     if (!compare) {
